@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Sepideh Farivar, Ph.D. candidate in Computer Science at UNLV. Machine learning, LLM and RAG systems on large-scale health claims data.">
+<title>Sepideh Farivar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a single reading column (~68ch) with a wider band for the data pipeline; portrait sits beside the name, stacks on phones */
+:root{
+  /* single dark world by request: blue-black ground, cool ink, dusty rose accent */
+  --paper:#0d1014; --surface:#161b21; --ink:#e8ecf0; --ink-2:#97a3ae; --rule:#252d36;
+  --accent:#e3a0ad; --accent-soft:#2c1c22;
+  --display:"Newsreader",Georgia,"Times New Roman",serif;
+  --body:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --data:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+  --ease-out:cubic-bezier(0.23,1,0.32,1);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:72px}
+body{background:var(--paper);color:var(--ink);font:400 1.0625rem/1.65 var(--body);padding-inline:20px;-webkit-font-smoothing:antialiased}
+::selection{background:var(--accent);color:var(--paper)}
+a{color:var(--accent);text-underline-offset:.2em;text-decoration-thickness:1px}
+a:hover{text-decoration-thickness:2px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
+.wrap{max-width:68rem;margin-inline:auto}
+.col{max-width:44rem}
+
+nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--paper);border-bottom:1px solid var(--rule);margin-inline:-20px;padding:.7rem 20px}
+nav .wrap{display:flex;gap:1.4rem;align-items:baseline;overflow-x:auto;scrollbar-width:none}
+nav .wrap::-webkit-scrollbar{display:none}
+nav .mark{font:600 1rem var(--display);color:var(--ink);text-decoration:none;margin-right:auto;white-space:nowrap}
+nav a.l{font-size:.875rem;color:var(--ink-2);text-decoration:none;white-space:nowrap;transition:color .15s ease}
+nav a.l:hover{color:var(--ink)}
+
+header{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,22rem);gap:2rem;align-items:end;padding-top:3.5rem;border-bottom:1px solid var(--rule);position:relative}
+header .txt{padding-bottom:4rem}
+h1{font:500 clamp(3rem,8vw,6rem)/.95 var(--display);letter-spacing:-.03em;margin:0 0 1.5rem;text-wrap:balance}
+.lede{font:400 clamp(1.25rem,2.4vw,1.5rem)/1.45 var(--display);margin:0 0 1.75rem;max-width:34rem;text-wrap:pretty}
+.meta{color:var(--ink-2);font-size:.9375rem;margin:0;display:flex;flex-wrap:wrap;gap:.35rem 1.25rem}
+.links{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.75rem}
+.btn{display:inline-flex;align-items:center;gap:.45rem;padding:.55rem .95rem;border:1px solid var(--rule);color:var(--ink);text-decoration:none;font-size:.9rem;font-weight:500;border-radius:2px;background:var(--surface);transition:border-color .15s ease,background .15s ease,transform .12s var(--ease-out)}
+.btn:hover{border-color:var(--accent);background:var(--accent-soft)}
+.btn:active{transform:scale(.97)}
+.btn svg{width:15px;height:15px}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+.btn.primary:hover{background:var(--ink);border-color:var(--ink)}
+.portrait{margin:0;position:relative;align-self:end;display:flex;justify-content:center}
+.portrait::before{content:"";position:absolute;inset:18% 6% 0;background:radial-gradient(60% 55% at 50% 40%,#2a3440 0%,transparent 72%);z-index:0}
+.portrait img{position:relative;z-index:1;display:block;width:100%;max-width:22rem;height:auto;-webkit-mask-image:linear-gradient(to bottom,#000 62%,transparent 98%);mask-image:linear-gradient(to bottom,#000 62%,transparent 98%)}
+section{padding-block:4rem;border-bottom:1px solid var(--rule)}
+h2{font:500 2rem/1.15 var(--display);letter-spacing:-.015em;margin:0 0 1.5rem}
+h3{font:600 1.0625rem/1.4 var(--body);margin:0}
+p{margin:0 0 1rem}
+.muted{color:var(--ink-2)}
+
+/* pipeline */
+.pipe{margin:2.5rem 0 1rem;overflow-x:auto}
+.pipe ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(9.5rem,1fr));min-width:50rem;border-top:2px solid var(--ink)}
+.pipe li{padding:1rem 1.1rem 0 0;position:relative}
+.pipe li::before{content:"";position:absolute;top:-7px;left:0;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--ink)}
+.pipe li:last-child::before{background:var(--accent);border-color:var(--accent)}
+.pipe .n{font:500 1.75rem/1.1 var(--display);font-variant-numeric:tabular-nums;display:block;margin-top:.6rem}
+.pipe .k{font:500 .7rem var(--data);text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2)}
+.pipe .d{font-size:.875rem;color:var(--ink-2);margin-top:.35rem;line-height:1.5}
+.note{font:400 .75rem var(--data);color:var(--ink-2)}
+
+.work{list-style:none;margin:2.5rem 0 0;padding:0}
+.work li{display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:1.5rem;padding-block:1.25rem;border-top:1px solid var(--rule)}
+.work .yr{font:400 .8125rem/1.7 var(--data);color:var(--ink-2);font-variant-numeric:tabular-nums}
+.work p{margin:.3rem 0 0;color:var(--ink-2);font-size:.975rem}
+.stack{font:400 .78rem/1.6 var(--data)!important;color:var(--accent)!important;margin-top:.55rem!important}
+dl.methods{margin:0;display:grid;gap:0}
+dl.methods div{display:grid;grid-template-columns:9rem minmax(0,1fr);gap:1.5rem;padding-block:.85rem;border-top:1px solid var(--rule)}
+dl.methods dt{font:500 .75rem/1.9 var(--data);text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2)}
+dl.methods dd{margin:0;font-size:.975rem}
+.tag{display:inline-block;font:500 .6875rem/1 var(--data);letter-spacing:.06em;text-transform:uppercase;padding:.3rem .45rem;border-radius:2px;background:var(--surface);color:var(--ink-2);vertical-align:.15em;margin-left:.4rem;white-space:nowrap}
+.tag.on{background:var(--accent-soft);color:var(--accent)}
+
+.pubs h3{font:500 .75rem var(--data);text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2);margin:2.25rem 0 .25rem}
+.pubs ol{margin:0;padding:0;list-style:none}
+.pubs li{padding-block:1rem;border-bottom:1px solid var(--rule)}
+.pubs .t{font:500 1.1875rem/1.35 var(--display);display:block;color:var(--ink)}
+.pubs .a{font-size:.9rem;color:var(--ink-2);display:block;margin-top:.3rem}
+.pubs .a b{color:var(--ink);font-weight:600}
+.pubs .v{font-size:.9rem;display:block;margin-top:.15rem}
+.pubs .v i{color:var(--ink)}
+
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:3rem}
+dl.cv{margin:0}
+dl.cv div{display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:1.5rem;padding-block:.9rem;border-top:1px solid var(--rule)}
+dl.cv dt{font:400 .8125rem/1.7 var(--data);color:var(--ink-2);font-variant-numeric:tabular-nums}
+dl.cv dd{margin:0}
+dl.cv dd span{display:block;color:var(--ink-2);font-size:.95rem}
+
+.skills{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:2rem 2.5rem;margin-top:1rem}
+.skills h3{font:500 .75rem var(--data);text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2);margin-bottom:.5rem}
+.skills p{font-size:.95rem;margin:0}
+
+.mail{font:500 clamp(1.25rem,3vw,1.75rem) var(--display);color:var(--ink);margin:1.5rem 0 0;user-select:all;overflow-wrap:anywhere}
+.contact{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.5rem}
+footer{padding-block:2.5rem;font-size:.8125rem;color:var(--ink-2)}
+
+/* one authored moment: the pipeline line draws in once */
+@media (prefers-reduced-motion:no-preference){
+  .pipe ol{animation:draw .9s var(--ease-out) .15s both}
+  .pipe li{animation:rise .6s var(--ease-out) both}
+  .pipe li:nth-child(2){animation-delay:.12s}.pipe li:nth-child(3){animation-delay:.2s}.pipe li:nth-child(4){animation-delay:.28s}.pipe li:nth-child(5){animation-delay:.36s}
+  @keyframes draw{from{border-top-color:var(--rule)}}
+  @keyframes rise{from{transform:translateY(6px);opacity:.4}}
+}
+@media (max-width:760px){
+  header{grid-template-columns:1fr;gap:0;padding-top:2rem}
+  header .txt{padding-bottom:2.5rem}
+  .portrait{order:-1}
+  .portrait img{max-width:15rem}
+  .two,.skills{grid-template-columns:1fr;gap:2rem}
+  .work li,dl.cv div,dl.methods div{grid-template-columns:1fr;gap:.2rem}
+  section{padding-block:3rem}
+  nav a.l{font-size:.8125rem}
+}
+body{margin:0}
+img{max-width:100%}
+</style>
+
+</head>
+<body>
+<nav aria-label="Sections"><div class="wrap">
+  <a class="mark" href="#top">Sepideh Farivar</a>
+  <a class="l" href="#research">Research</a>
+  <a class="l" href="#projects">Projects</a>
+  <a class="l" href="#methods">Methods</a>
+  <a class="l" href="#publications">Publications</a>
+  <a class="l" href="#teaching">Teaching</a>
+  <a class="l" href="#experience">Experience</a>
+  <a class="l" href="#contact">Contact</a>
+</div></nav>
+
+<main class="wrap" id="top">
+<header>
+  <div class="txt">
+    <h1>Sepideh Farivar</h1>
+    <p class="lede">I build end-to-end machine learning and LLM systems on large health data, from a 59-million-claim pipeline to models and assistants that explain pregnancy risk to clinicians.</p>
+    <p class="meta"><span>Ph.D. Candidate, Computer Science</span><span>University of Nevada, Las Vegas</span><span>Graduating May 2027</span></p>
+    <div class="links">
+      <a class="btn primary" href="Sepideh_Farivar_CV.pdf" target="_blank" rel="noopener">View CV</a>
+      <a class="btn" href="#projects">Projects</a>
+      <a class="btn" href="https://scholar.google.com.my/citations?user=GlQNXdkAAAAJ&amp;hl=en" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 9l10-6 10 6-10 6z"/><path d="M6 11.5V16c0 1.7 2.7 3 6 3s6-1.3 6-3v-4.5"/></svg>Scholar</a>
+      <a class="btn" href="https://www.linkedin.com/in/sepideh-farivar-79950859/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 014 0v4M12 10v7"/></svg>LinkedIn</a>
+      <a class="btn" href="https://github.com/sepide-farivar" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9 19c-4 1.3-4-2-6-2.5m12 5v-3.5a3 3 0 00-.9-2.3c3-.3 6.1-1.5 6.1-6.7a5.2 5.2 0 00-1.4-3.6 4.8 4.8 0 00-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 00-6.6 0C6.8 1.5 5.7 1.8 5.7 1.8a4.8 4.8 0 00-.1 3.6A5.2 5.2 0 004.2 9c0 5.2 3.1 6.4 6.1 6.7a3 3 0 00-.9 2.3V22"/></svg>GitHub</a>
+    </div>
+  </div>
+  <figure class="portrait">
+    <img src="assets/portrait.webp" alt="Sepideh Farivar" width="579" height="911">
+  </figure>
+</header>
+
+<section id="research">
+  <div class="col">
+    <h2>Research</h2>
+    <p>Severe maternal morbidity, the unexpected outcomes of labor and delivery that threaten a mother's life or health, is rare in any one hospital and easy to miss until it happens. My research, advised by Dr. Kazem Taghva, asks how much of that risk is already written in the claims a patient generates during pregnancy, and how to put the answer in front of the nurses and physicians who can act on it.</p>
+    <p class="muted">The work uses the Virginia All-Payer Claims Database, which covers deliveries from 2018 to 2022 across Medicaid, Medicare Advantage, and commercial plans. Because the data are protected, every model, including the language models, runs on local hardware under a data-use agreement.</p>
+  </div>
+
+  <div class="pipe" role="group" aria-label="Research pipeline from claims to narratives">
+    <ol>
+      <li><span class="k">Claims</span><span class="n">59M</span><div class="d">Raw medical and enrollment claims merged and validated in a reproducible ETL pipeline.</div></li>
+      <li><span class="k">Pregnancies</span><span class="n">325k</span><div class="d">Pregnancy episodes reconstructed for about 397k patients, with prenatal and postpartum windows labeled.</div></li>
+      <li><span class="k">Signals</span><span class="n">26 · 21</span><div class="d">Prenatal risk factors, kept separate from the CDC severe maternal morbidity indicators.</div></li>
+      <li><span class="k">Models</span><span class="n">AUPRC</span><div class="d">Ordinal and survival models, Transformers, boosting and graph networks, explained with SHAP and LIME.</div></li>
+      <li><span class="k">Answers</span><span class="n">LLM + RAG</span><div class="d">A fine-tuned local model that narrates episodes and answers clinical questions.</div></li>
+    </ol>
+  </div>
+  <p class="note">Virginia APCD · deliveries 2018–2022 · ICD-10-CM</p>
+
+
+</section>
+
+
+<section id="projects">
+  <h2>Selected projects</h2>
+  <ul class="work">
+    <li><span class="yr">Planned</span><div><h3>Clinical Q&amp;A assistant with RAG <span class="tag on">In design</span></h3>
+      <p>A nurse asks how a prenatal ICD-10 code in a patient's record relates to severe maternal morbidity. The assistant retrieves the matching mined rules and clinical risk-factor evidence, then answers in plain language with the fine-tuned local LLM. Evaluation will pair clinical experts with LLM-as-a-judge. Everything runs on-premise.</p>
+      <p class="stack">RAG · embedding retrieval · fine-tuned 8B LLM · association rules</p></div></li>
+    <li><span class="yr">2026</span><div><h3>Claims to clinical narratives <span class="tag on">In progress</span></h3>
+      <p>Turns a pregnancy episode into a week-by-week English summary. Codes become a JSON timeline, then template text, then a fluent rewrite by a local open-weight model. Those pairs fine-tune an 8B clinical model. A 70B candidate was rejected for adding interpretation the data did not support.</p>
+      <p class="stack">LLM fine-tuning · data-to-text · faithfulness testing · on-prem GPU</p></div></li>
+    <li><span class="yr">2026</span><div><h3>Preterm birth by gestational-age band <span class="tag on">In progress</span></h3>
+      <p>269,070 live births, 30,807 preterm (11.4%), split into WHO bands and spontaneous vs. indicated subtypes. Risk factors and SMM are profiled per band, and five model families are compared under a leakage-controlled landmark design.</p>
+      <p class="stack">ordinal regression · competing-risks survival · sequence Transformer · FT-Transformer · EBM</p></div></li>
+    <li><span class="yr">2026</span><div><h3>From prenatal codes to SMM</h3>
+      <p>Spark FP-Growth and Apriori over 6M ICD-10 records from 291,761 pregnancies produced 5,666 directional rules from prenatal diagnoses to SMM indicators, each explained in plain language by a local LLM. These rules are the knowledge base for the Q&amp;A assistant.</p>
+      <p class="stack">PySpark · association-rule mining · Llama 3.2</p></div></li>
+    <li><span class="yr">2025–26</span><div><h3>Explainable pregnancy-loss prediction</h3>
+      <p>Birth vs. loss on 241,076 episodes, comparing a 12,946-feature bag-of-codes model, an interpretable 285-feature model, and sentence embeddings. Thresholds were calibrated for about 0.90 loss recall. SHAP and LIME agreed on 72.7% of feature-level comparisons in the analysis of missed losses.</p>
+      <p class="stack">XGBoost · Bayesian classifiers · DistilBERT · MiniLM · SHAP · LIME</p></div></li>
+    <li><span class="yr">2025</span><div><h3>AI pregnancy episode identification</h3>
+      <p>A two-stage Transformer and rule-based framework that finds and numbers prenatal, delivery and postpartum episodes for 397k patients, with more than 93% of patients' pregnancies labeled perfectly.</p>
+      <p class="stack">Transformers · rule engine · MariaDB ETL at 59M claims</p></div></li>
+    <li><span class="yr">2024</span><div><h3>LLM annotation and data linking</h3>
+      <p>Built a biomedical NER dataset from ClinicalTrials.gov using LLMs, and at the School of Public Policy linked noisy global emissions records with fuzzy matching, GPT and BERT classifiers.</p>
+      <p class="stack">GPT · BERT · NER · fuzzy matching</p></div></li>
+  </ul>
+</section>
+
+<section id="methods">
+  <h2>Methods</h2>
+  <dl class="methods">
+    <div><dt>Statistical</dt><dd>Logistic, multinomial and ordinal regression · competing-risks survival · latent class analysis · Bayesian classifiers</dd></div>
+    <div><dt>Machine learning</dt><dd>XGBoost · LightGBM · Explainable Boosting Machine · MLP</dd></div>
+    <div><dt>Deep learning</dt><dd>FT-Transformer · sequence Transformers · DistilBERT · GCN · Heterogeneous Graph Transformer</dd></div>
+    <div><dt>LLMs</dt><dd>Fine-tuning · local open-weight serving · data-to-text · LLM annotation · RAG (in design)</dd></div>
+    <div><dt>Mining</dt><dd>FP-Growth · Apriori on Spark</dd></div>
+    <div><dt>Trust</dt><dd>SHAP · LIME · calibration · threshold tuning · AUPRC · leakage-controlled landmark design</dd></div>
+  </dl>
+</section>
+
+<section id="publications" class="pubs">
+  <h2>Publications</h2>
+
+  <h3>Journal articles</h3>
+  <ol>
+    <li><span class="t">Birth and Loss Classification Based on Maternal Insurance Claims Data</span>
+      <span class="a">Ebrahimi Azar, S., <b>Farivar, S.</b>, Devkota, Y., et al.</span>
+      <span class="v"><i>Health Information Science and Systems</i>, Springer <span class="tag on">Accepted 2025</span></span></li>
+    <li><span class="t">AI-Assisted Pregnancy Episode Identification from an All-Payer Claims Database</span>
+      <span class="v"><i>Health Information Science and Systems</i>, Springer <span class="tag on">Accepted 2026</span></span></li>
+  </ol>
+
+  <h3>Under review</h3>
+  <ol>
+    <li><span class="t">Prevalence of Maternal Risk Factors across Antepartum and Intrapartum Claims</span>
+      <span class="v"><i>PLOS One</i> <span class="tag">Submitted 2026</span></span></li>
+    <li><span class="t">Validating the Classification of the Maternal Care Continuum in All-Payer Claims Databases</span>
+      <span class="v"><i>Birth</i>, Wiley <span class="tag">Submitted 2025</span></span></li>
+    <li><span class="t">Transforming Insurance Claims into Maternal Care Insights</span>
+      <span class="v"><i>IEEE BigData 2026</i>, 9th Special Session on HealthCare Data <span class="tag">Submitted 2026</span></span></li>
+  </ol>
+
+  <h3>Conference proceedings</h3>
+  <ol>
+    <li><span class="t">Automatic Annotation of ClinicalTrials.gov Entities Using Large Language Models</span>
+      <span class="a">Nahed, P., <b>Farivar, S.</b>, &amp; Taghva, K. (2024)</span>
+      <span class="v"><i>Proceedings of the International Congress on Information and Communication Technology</i>, Springer, pp. 431–439</span></li>
+    <li><span class="t">Exploratory Analysis of Gamblers' Financial Transactions to Mine Behavioral Pattern Data</span>
+      <span class="a">Larni, M., <b>Farivar, S.</b>, Puranik, P., Ghaharian, K., Golab, L., &amp; Taghva, K. (2024)</span>
+      <span class="v"><i>Proceedings of the Third International Conference on Innovations in Computing Research (ICR'24)</i>, Springer</span></li>
+  </ol>
+
+  <h3>Preprints</h3>
+  <ol>
+    <li><span class="t">The a-number of y<sup>n</sup> = x<sup>m</sup> + x over Finite Fields</span>
+      <span class="a">Mosallaei, B., <b>Farivar, S.</b>, Ghanbari, F., &amp; Nourozi, V. (2024)</span>
+      <span class="v"><a href="https://arxiv.org/abs/2404.08149" target="_blank" rel="noopener">arXiv:2404.08149</a></span></li>
+    <li><span class="t">Goppa Codes: Key to High Efficiency and Reliability in Communications</span>
+      <span class="a">Mosallaei, B., Ghanbari, F., <b>Farivar, S.</b>, &amp; Nourozi, V. (2024)</span>
+      <span class="v"><a href="https://arxiv.org/abs/2404.08132" target="_blank" rel="noopener">arXiv:2404.08132</a></span></li>
+  </ol>
+</section>
+
+<section id="teaching">
+  <div class="two">
+    <div>
+      <h2>Teaching</h2>
+      <h3>Managing Big Data &amp; Web Databases</h3>
+      <p class="muted" style="margin-top:.35rem">Instructor for nearly two years in the graduate Data Analytics program, Department of Computer Science, UNLV. Students design databases and work through big data tools on real, messy datasets.</p>
+    </div>
+    <div>
+      <h2>Collaboration</h2>
+      <p class="muted">Clinical questions come from the UNLV School of Nursing, with Dr. Jennifer Vanderlaan, so model output is checked against how maternal care actually works. With the School of Public Policy I cleaned and linked global emissions records using rule-based matching and LLM-assisted classification.</p>
+    </div>
+  </div>
+</section>
+
+<section id="experience">
+  <div class="two">
+    <div>
+      <h2>Experience</h2>
+      <dl class="cv">
+        <div><dt>2022–now</dt><dd>Graduate Research Assistant<span>Department of Computer Science, UNLV</span></dd></div>
+        <div><dt>Summer 2024</dt><dd>Research and Data Science Intern<span>School of Public Policy, UNLV</span></dd></div>
+        <div><dt>2017–2021</dt><dd>Web Developer<span>Sepehr System Technologists</span></dd></div>
+        <div><dt>2015–2017</dt><dd>Back-end and front-end developer<span>Zino, Aryafa, Hiva Afarinesh</span></dd></div>
+      </dl>
+    </div>
+    <div>
+      <h2>Education</h2>
+      <dl class="cv">
+        <div><dt>2022–2027</dt><dd>Ph.D., Computer Science<span>University of Nevada, Las Vegas · GPA 3.91</span></dd></div>
+        <div><dt>2013–2015</dt><dd>M.S., Computer Science<span>University of Mazandaran, Babolsar</span></dd></div>
+        <div><dt>2008–2012</dt><dd>B.Sc., Computer Science<span>Shahid Bahonar University of Kerman</span></dd></div>
+      </dl>
+    </div>
+  </div>
+</section>
+
+<section id="skills">
+  <h2>Stack</h2>
+  <div class="skills">
+    <div><h3>Languages</h3><p>Python, SQL, JavaScript, PHP, C++, Java</p></div>
+    <div><h3>Data</h3><p>Apache Spark, MariaDB, MySQL, large-scale ETL, Tableau</p></div>
+    <div><h3>ML and LLM</h3><p>PyTorch, PyTorch Geometric, Hugging Face, scikit-learn</p></div>
+    <div><h3>Infrastructure</h3><p>Linux, on-premise GPU, Git, Jupyter</p></div>
+    <div><h3>Health data</h3><p>All-payer claims, ICD-10-CM, CPT, CDC SMM indicators</p></div>
+    <div><h3>Web</h3><p>Six years full-stack: Laravel, Yii2, React</p></div>
+  </div>
+</section>
+
+<section id="contact" style="border-bottom:0">
+  <div class="col">
+    <h2>Contact</h2>
+    <p class="muted">I am open to faculty and research roles in health data science, and to collaborations on claims data, maternal health, and trustworthy clinical AI.</p>
+    <p class="mail">Farivar@unlv.nevada.edu</p>
+    <div class="contact">
+      <a class="btn" href="https://www.linkedin.com/in/sepideh-farivar-79950859/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 014 0v4M12 10v7"/></svg>LinkedIn</a>
+      <a class="btn" href="https://github.com/sepide-farivar" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9 19c-4 1.3-4-2-6-2.5m12 5v-3.5a3 3 0 00-.9-2.3c3-.3 6.1-1.5 6.1-6.7a5.2 5.2 0 00-1.4-3.6 4.8 4.8 0 00-.1-3.6s-1.1-.3-3.7 1.4a12.7 12.7 0 00-6.6 0C6.8 1.5 5.7 1.8 5.7 1.8a4.8 4.8 0 00-.1 3.6A5.2 5.2 0 004.2 9c0 5.2 3.1 6.4 6.1 6.7a3 3 0 00-.9 2.3V22"/></svg>GitHub</a>
+      <a class="btn" href="https://scholar.google.com.my/citations?user=GlQNXdkAAAAJ&amp;hl=en" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 9l10-6 10 6-10 6z"/><path d="M6 11.5V16c0 1.7 2.7 3 6 3s6-1.3 6-3v-4.5"/></svg>Google Scholar</a>
+    </div>
+  </div>
+</section>
+</main>
+<footer class="wrap">Sepideh Farivar · Las Vegas, Nevada</footer>
+
+</body>
+</html>
