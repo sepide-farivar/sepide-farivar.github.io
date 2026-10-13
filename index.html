@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="description" content="Sepideh Farivar, Ph.D. candidate in Computer Science at UNLV. Machine learning, LLM and RAG systems on large-scale health claims data.">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Sepideh Farivar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -58,17 +58,54 @@ h3{font:600 1.0625rem/1.4 var(--body);margin:0}
 p{margin:0 0 1rem}
 .muted{color:var(--ink-2)}
 
-/* pipeline */
-.pipe{margin:2.5rem 0 1rem;overflow-x:auto}
-.pipe ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(9.5rem,1fr));min-width:50rem;border-top:2px solid var(--ink)}
-.pipe li{padding:1rem 1.1rem 0 0;position:relative}
-.pipe li::before{content:"";position:absolute;top:-7px;left:0;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--ink)}
-.pipe li:last-child::before{background:var(--accent);border-color:var(--accent)}
-.pipe .n{font:500 1.75rem/1.1 var(--display);font-variant-numeric:tabular-nums;display:block;margin-top:.6rem}
+/* pipeline: line travels step to step; each node lights once with a soft ring */
+.pipe{margin:2.5rem 0 1rem}
+.pipe ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));border-top:2px solid var(--rule);position:relative}
+.pipe ol::after{content:"";position:absolute;left:0;top:-2px;width:100%;height:2px;background:linear-gradient(90deg,var(--ink-2),var(--accent));transform-origin:left;transform:scaleX(1)}
+.pipe li{padding:1rem 1.1rem 0 0;position:relative;min-width:0}
+.pipe li::before{content:"";position:absolute;top:-7px;left:0;width:12px;height:12px;border-radius:50%;background:var(--paper);border:2px solid var(--accent);z-index:1;transition:background .3s ease,border-color .3s ease}
+.pipe li::after{content:"";position:absolute;top:-7px;left:0;width:12px;height:12px;border-radius:50%;box-shadow:0 0 0 0 var(--accent);opacity:0;pointer-events:none}
+.pipe li:last-child::before{background:var(--accent)}
+.pipe .n{font:500 1.75rem/1.1 var(--display);font-variant-numeric:tabular-nums;display:block;margin-top:.6rem;transition:color .4s ease,opacity .4s ease}
+.pipe li.lit .n{color:var(--ink)}
 .pipe .k{font:500 .7rem var(--data);text-transform:uppercase;letter-spacing:.08em;color:var(--ink-2)}
-.pipe .d{font-size:.875rem;color:var(--ink-2);margin-top:.35rem;line-height:1.5}
+.pipe .d{font-size:.875rem;color:var(--ink-2);margin-top:.35rem;line-height:1.5;transition:opacity .5s ease,transform .5s var(--ease-out)}
 .note{font:400 .75rem var(--data);color:var(--ink-2)}
-
+/* armed = waiting to play (JS only); content stays readable, just dimmed */
+.pipe.armed ol::after{transform:scaleX(0)}
+.pipe.armed li::before{border-color:var(--rule)}
+.pipe.armed li:last-child::before{background:var(--paper)}
+.pipe.armed li .n{opacity:.3}
+.pipe.armed li .d{opacity:.45;transform:translateY(4px)}
+.pipe.armed li.lit::before{border-color:var(--accent)}
+.pipe.armed li.lit:last-child::before{background:var(--accent)}
+.pipe.armed li.lit .n,.pipe.armed li.lit .d{opacity:1;transform:none}
+.pipe.play ol::after{transform:scaleX(1);transition:transform 2.6s cubic-bezier(0.65,0,0.35,1)}
+.pipe li.lit::after{animation:ping .9s var(--ease-out) 1}
+.pipe.done li:last-child::after{animation:breathe 3.6s ease-in-out infinite}
+@keyframes ping{0%{opacity:.7;box-shadow:0 0 0 0 var(--accent)}100%{opacity:0;box-shadow:0 0 0 12px var(--accent)}}
+@keyframes breathe{0%,100%{opacity:0;box-shadow:0 0 0 0 var(--accent)}50%{opacity:.35;box-shadow:0 0 0 6px var(--accent)}}
+/* stack chips: flip in one by one when a project scrolls into view */
+.stack .chip{display:inline-block;white-space:nowrap}
+.stack .sep{display:inline-block;margin:0 .45em;opacity:.5}
+.stack.armed{perspective:400px}
+.stack.armed .chip{opacity:.25;transform:rotateX(-75deg) translateY(4px);transform-origin:50% 100%}
+.stack.armed .sep{opacity:0}
+.stack.armed .chip.in{opacity:1;transform:none;transition:opacity .35s ease,transform .55s cubic-bezier(0.34,1.4,0.64,1)}
+.stack.armed .sep.in{opacity:.5;transition:opacity .3s ease}
+/* live dot on in-progress tags: a slow, low-contrast blink */
+.tag.on::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:currentColor;margin-right:.4rem;vertical-align:.1em}
+@media (prefers-reduced-motion:no-preference){.tag.on::before{animation:blink 2.8s ease-in-out infinite}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@media (max-width:760px){
+  .pipe ol{grid-template-columns:1fr;border-top:0;border-left:2px solid var(--rule);padding-left:1.4rem;gap:1.25rem}
+  .pipe ol::after{left:-2px;top:0;width:2px;height:100%;background:linear-gradient(180deg,var(--ink-2),var(--accent));transform-origin:top;transform:scaleY(1)}
+  .pipe.armed ol::after{transform:scaleY(0)}
+  .pipe.play ol::after{transform:scaleY(1)}
+  .pipe li{padding:0}
+  .pipe li::before,.pipe li::after{top:.15rem;left:calc(-1.4rem - 7px)}
+  .pipe .n{margin-top:.2rem}
+}
 .work{list-style:none;margin:2.5rem 0 0;padding:0}
 .work li{display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:1.5rem;padding-block:1.25rem;border-top:1px solid var(--rule)}
 .work .yr{font:400 .8125rem/1.7 var(--data);color:var(--ink-2);font-variant-numeric:tabular-nums}
@@ -105,14 +142,6 @@ dl.cv dd span{display:block;color:var(--ink-2);font-size:.95rem}
 .contact{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:1.5rem}
 footer{padding-block:2.5rem;font-size:.8125rem;color:var(--ink-2)}
 
-/* one authored moment: the pipeline line draws in once */
-@media (prefers-reduced-motion:no-preference){
-  .pipe ol{animation:draw .9s var(--ease-out) .15s both}
-  .pipe li{animation:rise .6s var(--ease-out) both}
-  .pipe li:nth-child(2){animation-delay:.12s}.pipe li:nth-child(3){animation-delay:.2s}.pipe li:nth-child(4){animation-delay:.28s}.pipe li:nth-child(5){animation-delay:.36s}
-  @keyframes draw{from{border-top-color:var(--rule)}}
-  @keyframes rise{from{transform:translateY(6px);opacity:.4}}
-}
 @media (max-width:760px){
   header{grid-template-columns:1fr;gap:0;padding-top:2rem}
   header .txt{padding-bottom:2.5rem}
@@ -147,7 +176,7 @@ img{max-width:100%}
     <p class="lede">I build end-to-end machine learning and LLM systems on large health data, from a 59-million-claim pipeline to models and assistants that explain pregnancy risk to clinicians.</p>
     <p class="meta"><span>Ph.D. Candidate, Computer Science</span><span>University of Nevada, Las Vegas</span><span>Graduating May 2027</span></p>
     <div class="links">
-      <a class="btn primary" href="Sepideh_Farivar.pdf" target="_blank" rel="noopener">View CV</a>
+      <a class="btn primary" href="Sepideh_Farivar_CV.pdf" target="_blank" rel="noopener">View CV</a>
       <a class="btn" href="#projects">Projects</a>
       <a class="btn" href="https://scholar.google.com.my/citations?user=GlQNXdkAAAAJ&amp;hl=en" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M2 9l10-6 10 6-10 6z"/><path d="M6 11.5V16c0 1.7 2.7 3 6 3s6-1.3 6-3v-4.5"/></svg>Scholar</a>
       <a class="btn" href="https://www.linkedin.com/in/sepideh-farivar-79950859/" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 014 0v4M12 10v7"/></svg>LinkedIn</a>
@@ -166,10 +195,10 @@ img{max-width:100%}
     <p class="muted">The work uses the Virginia All-Payer Claims Database, which covers deliveries from 2018 to 2022 across Medicaid, Medicare Advantage, and commercial plans. Because the data are protected, every model, including the language models, runs on local hardware under a data-use agreement.</p>
   </div>
 
-  <div class="pipe" role="group" aria-label="Research pipeline from claims to narratives">
+  <div class="pipe" id="pipe" role="group" aria-label="Research pipeline from claims to narratives">
     <ol>
-      <li><span class="k">Claims</span><span class="n">59M</span><div class="d">Raw medical and enrollment claims merged and validated in a reproducible ETL pipeline.</div></li>
-      <li><span class="k">Pregnancies</span><span class="n">325k</span><div class="d">Pregnancy episodes reconstructed for about 397k patients, with prenatal and postpartum windows labeled.</div></li>
+      <li><span class="k">Claims</span><span class="n" data-to="59" data-suf="M">59M</span><div class="d">Raw medical and enrollment claims merged and validated in a reproducible ETL pipeline.</div></li>
+      <li><span class="k">Pregnancies</span><span class="n" data-to="325" data-suf="k">325k</span><div class="d">Pregnancy episodes reconstructed for about 397k patients, with prenatal and postpartum windows labeled.</div></li>
       <li><span class="k">Signals</span><span class="n">26 · 21</span><div class="d">Prenatal risk factors, kept separate from the CDC severe maternal morbidity indicators.</div></li>
       <li><span class="k">Models</span><span class="n">AUPRC</span><div class="d">Ordinal and survival models, Transformers, boosting and graph networks, explained with SHAP and LIME.</div></li>
       <li><span class="k">Answers</span><span class="n">LLM + RAG</span><div class="d">A fine-tuned local model that narrates episodes and answers clinical questions.</div></li>
@@ -325,6 +354,62 @@ img{max-width:100%}
 </section>
 </main>
 <footer class="wrap">Sepideh Farivar · Las Vegas, Nevada</footer>
+
+<script>
+(function(){
+  var p=document.getElementById('pipe'); if(!p) return;
+  if(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if(!('IntersectionObserver' in window)) return;
+  var items=[].slice.call(p.querySelectorAll('li'));
+  p.classList.add('armed');
+  function count(el){
+    var to=+el.dataset.to, suf=el.dataset.suf||'', t0=null, dur=900;
+    function step(t){ if(!t0) t0=t; var k=Math.min(1,(t-t0)/dur), e=1-Math.pow(1-k,3);
+      el.textContent=Math.round(to*e)+suf; if(k<1) requestAnimationFrame(step); }
+    requestAnimationFrame(step);
+  }
+  function play(){
+    p.classList.add('play');
+    items.forEach(function(li,i){
+      setTimeout(function(){
+        li.classList.add('lit');
+        var n=li.querySelector('[data-to]'); if(n) count(n);
+        if(i===items.length-1) setTimeout(function(){p.classList.add('done')},900);
+      }, 150 + i*560);
+    });
+  }
+  var io=new IntersectionObserver(function(es){
+    if(es.some(function(e){return e.isIntersecting})){ io.disconnect(); setTimeout(play,250); }
+  },{threshold:.35});
+  io.observe(p);
+  setTimeout(function(){ if(!p.classList.contains('play')){ io.disconnect(); play(); } }, 6000);
+})();
+</script>
+<script>
+(function(){
+  var reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var stacks=[].slice.call(document.querySelectorAll('.stack'));
+  stacks.forEach(function(s){
+    var parts=s.textContent.split(' · '); s.setAttribute('aria-label',s.textContent); s.textContent='';
+    parts.forEach(function(t,i){
+      if(i){var d=document.createElement('span');d.className='sep';d.setAttribute('aria-hidden','true');d.textContent='·';s.appendChild(d);}
+      var c=document.createElement('span');c.className='chip';c.textContent=t;s.appendChild(c);
+    });
+  });
+  if(reduce||!('IntersectionObserver' in window)) return;
+  stacks.forEach(function(s){s.classList.add('armed')});
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(!e.isIntersecting) return; io.unobserve(e.target);
+      [].slice.call(e.target.children).forEach(function(el,i){
+        setTimeout(function(){el.classList.add('in')}, 120 + i*90);
+      });
+    });
+  },{threshold:.6,rootMargin:'0px 0px -8% 0px'});
+  stacks.forEach(function(s){io.observe(s)});
+  setTimeout(function(){stacks.forEach(function(s){[].slice.call(s.children).forEach(function(el){el.classList.add('in')})})},12000);
+})();
+</script>
 
 </body>
 </html>
